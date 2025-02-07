@@ -29,7 +29,7 @@ def worker_init_fn(worker_id, seed):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-
+# 加载数据集
 def build_dataloader(split_cfg, cfg, is_train=True):
     if is_train:
         shuffle = True

@@ -61,7 +61,7 @@ class Runner(object):
         load_network(self.net, self.cfg.load_from, finetune_from=self.cfg.finetune_from, logger=self.recorder.logger)
 
     def train_epoch(self, epoch, train_loader):
-        self.net.train()
+        self.net.train() # 模型模式设置为训练模式
         end = time.time()
         max_iter = len(train_loader)
         for i, data in enumerate(train_loader):
@@ -69,20 +69,22 @@ class Runner(object):
                 break
             date_time = time.time() - end
             self.recorder.step += 1
-            data = self.to_cuda(data)
-            output = self.net(data)
+            data = self.to_cuda(data) # 数据移动到gpu
+            output = self.net(data) # 前向传播, 数据输入模型
             self.optimizer.zero_grad()
-            loss = output['loss'].sum()
-            loss.backward()
-            self.optimizer.step()
+            loss = output['loss'].sum() # 提取损失值，并对多个损失（如果有）求和。
+            loss.backward() # 反向传播 计算梯度
+            self.optimizer.step() #使用优化器更新模型参数
             if not self.cfg.lr_update_by_epoch:
-                self.scheduler.step()
-            batch_time = time.time() - end
+                self.scheduler.step() # 跟新学习率
+            batch_time = time.time() - end # 计算一个 batch 的时间
             end = time.time()
+            # 记录
             self.recorder.update_loss_stats(output['loss_stats'])
             self.recorder.batch_time.update(batch_time)
             self.recorder.data_time.update(date_time)
 
+            # 每隔 log_interval 次迭代或在最后一个迭代时，记录当前的学习率和训练统计信息。
             if i % self.cfg.log_interval == 0 or i == max_iter - 1:
                 lr = self.optimizer.param_groups[0]['lr']
                 self.recorder.lr = lr
@@ -90,6 +92,7 @@ class Runner(object):
 
     def train(self):
         self.recorder.logger.info('Build train loader...')
+        # 加载训练集
         train_loader = build_dataloader(self.cfg.dataset.train,
                                         self.cfg,
                                         is_train=True)
@@ -100,18 +103,19 @@ class Runner(object):
             start_epoch = resume_network(self.cfg.resume_from, self.net,
                                          self.optimizer, self.scheduler,
                                          self.recorder)
+        # 循环训练，每个 epoch 训练完后，进行验证和保存模型
         for epoch in range(start_epoch, self.cfg.epochs):
             self.recorder.epoch = epoch
             self.train_epoch(epoch, train_loader)
             if (epoch +
                     1) % self.cfg.save_ep == 0 or epoch == self.cfg.epochs - 1:
-                self.save_ckpt()
+                self.save_ckpt() # 保存当前模型的检查点
             if (epoch +
                     1) % self.cfg.eval_ep == 0 or epoch == self.cfg.epochs - 1:
-                self.validate()
+                self.validate() # 定期验证, 监控模型的性能、防止过拟合
             if self.recorder.step >= self.cfg.total_iter:
                 break
-            if self.cfg.lr_update_by_epoch:
+            if self.cfg.lr_update_by_epoch: # 各个配置都是False
                 self.scheduler.step()
 
 

@@ -1,6 +1,9 @@
 import torch
 
-
+# 构建优化器
+'''
+调整模型的参数（如权重和偏置）来最小化损失函数
+'''
 def build_optimizer(cfg, net):
     params = []
     cfg_cp = cfg.optimizer.copy()
