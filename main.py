@@ -27,10 +27,10 @@ def main():
 
     cfg.work_dirs = args.work_dirs if args.work_dirs else cfg.work_dirs
 
-    cudnn.benchmark = True
+    cudnn.benchmark = True #以启用 CuDNN 的自动优化功能，加速训练。
 
-    runner = Runner(cfg)
-
+    runner = Runner(cfg) # 负责管理训练、验证和测试的整个流程。
+    print('cfg: ', cfg)
     if args.validate:
         runner.validate()
     elif args.test:

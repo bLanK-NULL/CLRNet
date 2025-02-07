@@ -9,11 +9,11 @@ NETS = Registry('nets')
 
 
 def build(cfg, registry, default_args=None):
-    if isinstance(cfg, list):
+    if isinstance(cfg, list): # 如果 cfg 是列表
         modules = [
             build_from_cfg(cfg_, registry, default_args) for cfg_ in cfg
         ]
-        return nn.Sequential(*modules)
+        return nn.Sequential(*modules) # cfg是列表代表可能需要多个模块按顺序执行, 需要序列化
     else:
         return build_from_cfg(cfg, registry, default_args)
 

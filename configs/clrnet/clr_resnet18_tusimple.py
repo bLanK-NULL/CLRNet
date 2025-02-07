@@ -3,7 +3,7 @@ net = dict(type='Detector', )
 backbone = dict(
     type='ResNetWrapper',
     resnet='resnet18',
-    pretrained=True,
+    pretrained=True, # 加载与训练权重
     replace_stride_with_dilation=[False, False, False],
     out_conv=False,
 )
@@ -13,23 +13,23 @@ max_lanes = 5
 sample_y = range(710, 150, -10)
 
 heads = dict(type='CLRHead',
-             num_priors=192,
-             refine_layers=3,
-             fc_hidden_dim=64,
-             sample_points=36)
+             num_priors=192, # 每个像素点的先验框数量
+             refine_layers=3, # 精调层的数量
+             fc_hidden_dim=64,# 全连接层的隐藏单元数量
+             sample_points=36) # 采样点数量
 
-iou_loss_weight = 2.
-cls_loss_weight = 6.
-xyt_loss_weight = 0.5
-seg_loss_weight = 1.0
+iou_loss_weight = 2. # iou损失权重
+cls_loss_weight = 6. # 分类损失权重
+xyt_loss_weight = 0.5 # xyt损失权重
+seg_loss_weight = 1.0 # 分割损失权重
 
 work_dirs = "work_dirs/clr/r18_tusimple"
-
+# 定义模型的颈部（neck）为 FPN（特征金字塔网络），用于融合不同尺度的特征
 neck = dict(type='FPN',
-            in_channels=[128, 256, 512],
-            out_channels=64,
-            num_outs=3,
-            attention=False)
+            in_channels=[128, 256, 512], #输入特征图的通道数
+            out_channels=64, #输出特征图的通道数
+            num_outs=3, #输出特征图的数量
+            attention=False) #是否使用注意力机制
 
 test_parameters = dict(conf_threshold=0.40, nms_thres=50, nms_topk=max_lanes)
 

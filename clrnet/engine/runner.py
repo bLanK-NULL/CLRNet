@@ -19,20 +19,33 @@ from mmcv.parallel import MMDataParallel
 
 class Runner(object):
     def __init__(self, cfg):
+        # 设置 PyTorch 和 numpy  的随机种子，确保实验的可重复性
         torch.manual_seed(cfg.seed)
         np.random.seed(cfg.seed)
         random.seed(cfg.seed)
+        # 保存配置
         self.cfg = cfg
+        # 构建记录器（Recorder），用于记录训练过程中的日志、指标等信息
         self.recorder = build_recorder(self.cfg)
+        # 构建网络模型，根据配置文件中的模型架构初始化模型
         self.net = build_net(self.cfg)
-        self.net = MMDataParallel(self.net,
-                                  device_ids=range(self.cfg.gpus)).cuda()
+        # 将模型包装为多 GPU 并行模型（MMDataParallel），并移动到 GPU 上
+        # device_ids 指定使用的 GPU 设备范围，self.cfg.gpus 是 GPU 数量
+        self.net = MMDataParallel(self.net, device_ids=range(self.cfg.gpus)).cuda()
+        # 使用记录器记录网络模型的架构信息
         self.recorder.logger.info('Network: \n' + str(self.net))
+        # 恢复训练（如果指定了 resume_from 或 load_from 参数）
+        # 从检查点加载模型权重和优化器状态
         self.resume()
+        # 构建优化器（Optimizer），根据配置文件中的优化器参数初始化优化器
         self.optimizer = build_optimizer(self.cfg, self.net)
+        # 构建学习率调度器（Scheduler），根据配置文件中的调度器参数初始化调度器
         self.scheduler = build_scheduler(self.cfg, self.optimizer)
+        # 初始化一个变量 self.metric，用于保存评估指标（如精度、损失等）
         self.metric = 0.
+        # 初始化验证集数据加载器为 None，后续根据需要构建
         self.val_loader = None
+        # 初始化测试集数据加载器为 None，后续根据需要构建
         self.test_loader = None
 
     def to_cuda(self, batch):

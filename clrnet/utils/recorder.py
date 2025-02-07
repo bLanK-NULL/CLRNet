@@ -57,13 +57,14 @@ class Recorder(object):
         self.batch_time = SmoothedValue()
         self.data_time = SmoothedValue()
         self.max_iter = self.cfg.total_iter
-        self.lr = 0.
+        self.lr = 0. # 学习率
 
+    # 将配置文件保存到工作目录中
     def save_cfg(self, cfg):
         cfg_path = os.path.join(self.work_dir, 'config.py')
         with open(cfg_path, 'w') as cfg_file:
             cfg_file.write(cfg.text)
-
+    # 将项目代码复制到工作目录中
     def cp_projects(self, to_path):
         with open('./.gitignore', 'r') as fp:
             ign = fp.read()
@@ -82,7 +83,7 @@ class Recorder(object):
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
             os.system('cp %s %s' % (f, os.path.join(to_path, 'code', f[2:])))
-
+    # 生成工作目录路径，路径名包含当前时间和超参数信息
     def get_work_dir(self):
         now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         hyper_param_str = '_lr_%1.0e_b_%d' % (self.cfg.optimizer.lr,
@@ -91,7 +92,8 @@ class Recorder(object):
         if not os.path.exists(work_dir):
             os.makedirs(work_dir)
         return work_dir
-
+    # 更新损失值的统计信息
+    #  使用 SmoothedValue 记录损失值的平滑值
     def update_loss_stats(self, loss_dict):
         for k, v in loss_dict.items():
             if not isinstance(v, torch.Tensor): continue
@@ -100,12 +102,12 @@ class Recorder(object):
     def record(self, prefix, step=-1, loss_stats=None, image_stats=None):
         self.logger.info(self)
         # self.write(str(self))
-
+    # 追加到日志文件中
     def write(self, content):
         with open(self.log_path, 'a+') as f:
             f.write(content)
             f.write('\n')
-
+    # 保存和加载 Recorder 的状态（如当前步数）。
     def state_dict(self):
         scalar_dict = {}
         scalar_dict['step'] = self.step
@@ -113,7 +115,8 @@ class Recorder(object):
 
     def load_state_dict(self, scalar_dict):
         self.step = scalar_dict['step']
-
+    # 返回当前训练状态的字符串表示 
+    # 当前轮次、步数、学习率、损失值、数据加载时间、批次处理时间和预计剩余时间。
     def __str__(self):
         loss_state = []
         for k, v in self.loss_stats.items():
