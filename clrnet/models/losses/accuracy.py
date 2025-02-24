@@ -7,13 +7,10 @@ def accuracy(pred, target, topk=1, thresh=None):
     """Calculate accuracy according to the prediction and target.
 
     Args:
-        pred (torch.Tensor): The model prediction, shape (N, num_class)
-        target (torch.Tensor): The target of each prediction, shape (N, )
-        topk (int | tuple[int], optional): If the predictions in ``topk``
-            matches the target, the predictions will be regarded as
-            correct ones. Defaults to 1.
-        thresh (float, optional): If not None, predictions with scores under
-            this threshold are considered incorrect. Default to None.
+        pred (torch.Tensor): 模型的预测结果，形状为 (N, num_class)，其中 N 是样本数量，num_class 是类别数量。
+        target (torch.Tensor): 每个预测的真实标签，形状为 (N,)。
+        topk (int | tuple[int], optional): 如果预测结果在 top-k 范围内与真实标签匹配，则认为预测正确。默认为 1。
+        thresh (float, optional): 如果不为 None，则低于该阈值的预测被视为不正确。默认为 None。
 
     Returns:
         float | tuple[float]: If the input ``topk`` is a single integer,
@@ -21,6 +18,8 @@ def accuracy(pred, target, topk=1, thresh=None):
             ``topk`` is a tuple containing multiple integers, the
             function will return a tuple containing accuracies of
             each ``topk`` number.
+        如果输入的 topk 是一个整数，该函数将返回一个浮点数作为精度。
+        如果 topk 是一个包含多个整数的元组，该函数将返回一个元组作为精度
     """
     assert isinstance(topk, (int, tuple))
     if isinstance(topk, int):
@@ -37,8 +36,12 @@ def accuracy(pred, target, topk=1, thresh=None):
     assert pred.size(0) == target.size(0)
     assert maxk <= pred.size(1), \
         f'maxk {maxk} exceeds pred dimension {pred.size(1)}'
+    # pred_value shape:(N, maxk)
     pred_value, pred_label = pred.topk(maxk, dim=1)
     pred_label = pred_label.t()  # transpose to shape (maxk, N)
+    # .view(1, -1) 把第一个维度变成1维，第二个维度自动计算 
+    # target.view(1, -1) shape: (1, N)
+    # target.view(1, -1).expand_as(pred_label) shape:(maxk, N)
     correct = pred_label.eq(target.view(1, -1).expand_as(pred_label))
     if thresh is not None:
         # Only prediction values larger than thresh are counted as correct

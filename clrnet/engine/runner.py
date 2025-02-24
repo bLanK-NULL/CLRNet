@@ -54,7 +54,7 @@ class Runner(object):
                 continue
             batch[k] = batch[k].cuda()
         return batch
-
+    # 用来从断点继续 需要命令行参数 --resume_from
     def resume(self):
         if not self.cfg.load_from and not self.cfg.finetune_from:
             return

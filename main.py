@@ -38,7 +38,7 @@ def main():
     else:
         runner.train()
 
-
+# 负责读取命令行参数
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('config', help='train config file path')

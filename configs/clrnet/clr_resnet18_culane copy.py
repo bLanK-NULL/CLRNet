@@ -33,15 +33,15 @@ neck = dict(type='FPN',
 
 test_parameters = dict(conf_threshold=0.4, nms_thres=50, nms_topk=max_lanes)
 
-epochs = 15
-batch_size = 36
+epochs = 15 #训练总轮数
+batch_size = 36 # 一次读取多少个样本， 基于显存，一个batch_size里只需要更新一次参数
 
-optimizer = dict(type='AdamW', lr=0.7e-3)  # 3e-4 for batchsize 8
+optimizer = dict(type='AdamW', lr=0.8e-3)  # 3e-4 for batchsize 8
 total_iter = (88880 // batch_size) * epochs
 scheduler = dict(type='CosineAnnealingLR', T_max=total_iter)
 
-eval_ep = 5
-save_ep = 9
+eval_ep = 5 # 评估间隔。每隔eval_ep个epoch进行一次模型评估
+save_ep = 10 # 保存间隔, 
 
 img_norm = dict(mean=[103.939, 116.779, 123.68], std=[1., 1., 1.])
 ori_img_w = 1640

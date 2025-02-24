@@ -1,7 +1,7 @@
 import torch
 import math
 
-# 创建学习率调度器实例, 提高模型的训练小狗和收敛速度
+# 创建学习率调度器实例, 提高模型的训练效果和收敛速度
 
 def build_scheduler(cfg, optimizer):
 

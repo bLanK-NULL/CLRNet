@@ -6,7 +6,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Source: https://github.com/kornia/kornia/blob/f4f70fefb63287f72bc80cd96df9c061b1cb60dd/kornia/losses/focal.py
-
+'''
+这段代码定义了两种 Focal Loss 的实现方式：SoftmaxFocalLoss 和 FocalLoss。
+Focal Loss 是一种用于处理类别不平衡问题的损失函数，通过对难分类的样本赋予更高的权重来提高模型的性能。
+'''
 
 class SoftmaxFocalLoss(nn.Module):
     def __init__(self, gamma, ignore_lb=255, *args, **kwargs):
@@ -31,16 +34,16 @@ def one_hot(labels: torch.Tensor,
     r"""Converts an integer label x-D tensor to a one-hot (x+1)-D tensor.
 
     Args:
-        labels (torch.Tensor) : tensor with labels of shape :math:`(N, *)`,
-                                where N is batch size. Each value is an integer
-                                representing correct classification.
-        num_classes (int): number of classes in labels.
-        device (Optional[torch.device]): the desired device of returned tensor.
-         Default: if None, uses the current device for the default tensor type
-         (see torch.set_default_tensor_type()). device will be the CPU for CPU
-         tensor types and the current CUDA device for CUDA tensor types.
-        dtype (Optional[torch.dtype]): the desired data type of returned
-         tensor. Default: if None, infers data type from values.
+        labels (torch.Tensor) : tensor with label of shape:math: ' (N, *) '，
+        其中N为批处理大小。每个值都是整数
+        表示正确的分类。
+        Num_classes (int)：标签中类的数量。
+        device（可选[torch.device]）：返回张量所需的设备。
+        Default：如果None，则使用当前设备作为默认张量类型
+        (见torch.set_default_tensor_type())。设备将是CPU的CPU
+        张量类型和当前CUDA设备的CUDA张量类型。
+        dtype（可选[torch.dtype]）：期望返回的数据类型
+        张量。默认值：如果None，则从值推断数据类型。
 
     Returns:
         torch.Tensor: the labels in one hot tensor of shape :math:`(N, C, *)`,
